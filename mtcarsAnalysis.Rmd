@@ -1,0 +1,62 @@
+---
+title: "Motor Trend Analysis"
+author: "Jesus A. Gonzalez"
+date: "Monday, June 15, 2015"
+output: pdf_document
+---
+
+## Executive Summary
+This is an analysis for *Motor Trend* to explore the relationship between a set of variables and miles per gallon (MPG) for automatic and manual vehicles. The study is based in the **mtcars** (Henderson and Vellemanl, 1981) dataset extacted from the 1974 "Motor Trend US" magazine. This data describes fuel consumption and other aspects of automobile design and performance. The data describes examples of 32 cars from 1973 to 1974. Among the attributes of the **mtcars** dataset are "mpg, Miles/(US) gallon", "cyl, Number of cylinders", "hp, Gross horsepower", "am, Transmission (0 = automatic, 1 = manual)", among others. The goal of this analysis is to provide an answer to the question "Is an automatic or manual transmission better for MPG?" and support to the question "Quantify the MPG difference between automatic and manual transmissions". In our results we found a clear advantage for manual transmission vehicles over automatic with respect to MPG. We also found that the linear regression models for MPG with horse power as the predictor while separating manual from automatic vehicles data have a clear difference at the intercept **26.62 for automatic and 31.84 for manual with an hp coefficient of -0.059 for both types of transmission**.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.height=3}
+library(ggplot2)
+g <- ggplot(mtcars, aes(am, mpg))
+g +  labs(title = "Plot 1. MPG per Cylinders and Type of Transmission", x = "Automatic / Manual", y = "MPG") + geom_point() + facet_grid(. ~ cyl) + geom_smooth(method = "lm")
+```
+
+## Exploratory Data Analysis
+
+Performing basic exploratory analysis, we observe how, Millage Per Gallon (MPG) is higher for cars with manual transmission than for cars with automatic transmission. This can be seen in plot 1, in which we plot MPG versus AM (the type of transmission being 0 - automatic or 1 - manual) and also considering the difference in number of cylinders. This is better appreciated with the linear model fitted to the points of the plot.
+
+In plot 2 (found in the appendix), we can observe how MPG varies with respect to the number of cylinders and separating automatic from manual transmission cars. Here we can see a clear difference of how automatic cars have lower MPG. This can be better appreciated with the linear model fitted to the points of the plot.
+
+### Linear Regression MPG with AM
+Because **AM** is a binary variable, it does not make much sense to create a linear model with this data, the interpretation of such a model would be incorrect. As an example see plot 1, in which we compare automatic with manual transmission cars according to the number of cylinders of the cars and fit a linear model among the points for MPG. Then, a data transformation to the binary variable (AM) would be necessary in order to create a linear model. However, as we can see with the exploratory data analysis, automatic transmission vehicles have a lower MPG than manual transmission vehicles.
+
+### Linear Regression to Quantify MPG for Automatic or Manual Transmission (Inference)
+In order to quantify the **MPG** difference between automatic and manual transmission, we separated the dataset in two subsets, one for automatic transmission vehicles and another for manual transmission vehicles.
+
+The linear model for **MPG** as the outcome and **hp** as the predictor for automatic vehicles has an intercept at 26.62 and a coefficient of -0.059 (see plot 3). This means that for each unit of increase in **MPG** there is a decrement of 0.059 in horse power for automatic vehicles. This linear model is significant with a very low p-value of 6.92e-12 for the intercept and 1.02e-05 for hp.
+
+The linear model for **MPG** as the outcome and **hp** as the predictor for **manual** vehicles has an intercept at 31.84 and a coefficient of -0.059 (see plot 4). This means that for each unit of increase in **MPG** there is a decrement of 0.059 in horse power for **manual** vehicles. This linear model is significant with a very low p-value of 5.84e-9 for the intercept and 0.001 for hp.
+
+Given this evidence, we can conclude that there is a clear advantage (quantitatively) for manual transmission vehicles over automatic with respect to MPG (manual transmission vehicles save about 5 MPG with respect to automatic vehicles). We also found that the linear regression models for MPG with horse power as the predictor while separating manual from automatic vehicles data have a clear difference at the intercept **26.62 for automatic and 31.84 for manual with an hp coefficient of -0.059 for both**.
+
+## Residuals Plot for Automatic Cars -MPG - HP-
+If we create a residuals plot for **MPG** (the outcome) versus **hp** (the predictor), we find that the variation is in the range of [-4, 3] for the data in our dataset with vehicles with hp between 50 and 250. This can be seen in plot 5.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.height=3}
+auto <- mtcars[mtcars$am==0,]
+manu <- mtcars[mtcars$am==1,]
+g <- ggplot(auto, aes(hp, mpg))
+g +  labs(title = "Plot 3. MPG per Horse Power - Automatic Transmission", x = "Horse Power (hp)", y = "MPG") + geom_point() + geom_smooth(method = "lm")
+```
+
+## Appendix (Additional Plots)
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.height=4}
+g <- ggplot(mtcars, aes(cyl, mpg))
+g +  labs(title = "Plot 2. MPG per Number of Cylinders", x = "Number of Cylinders", y = "MPG") + geom_point() + facet_grid(. ~ am) + geom_smooth(method = "lm")
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.height=4}
+g2 <- ggplot(manu, aes(hp, mpg))
+g2 +  labs(title = "Plot 4. MPG per Horse Power - Manual Transmission", x = "Horse Power (hp)", y = "MPG") + geom_point() + geom_smooth(method = "lm")
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.height=4}
+f1 <- lm(mpg ~ hp, data = mtcars[mtcars$am==0,])
+f1.res <- resid(f1)
+plot(mtcars[mtcars$am==0,]$hp, f1.res, ylab="MPG Residuals", xlab="Horse Power", main="Plot 5. Residuals for MPG by Horse Power")
+abline(0,0)
+```
